@@ -32,6 +32,19 @@ func TestHomeHeaderUsesAsciiArtWhenItFits(t *testing.T) {
 	}
 }
 
+func TestHomeUsesTwoColumnLayoutWhenItFits(t *testing.T) {
+	model := NewModel(portfolio.DefaultProfile())
+	model.width = maxLineWidth(asciiMyFace) + 4 + maxLineWidth(asciiMyName) + 4
+	model.height = len(asciiMyFace) + 4
+
+	view := model.View()
+	for _, want := range []string{asciiMyFace[0], strings.TrimSpace(asciiMyName[0]), "Works"} {
+		if !strings.Contains(view, want) {
+			t.Fatalf("2カラム表示に %q が含まれていません", want)
+		}
+	}
+}
+
 func TestEnterFromWorksShowsDetail(t *testing.T) {
 	model := NewModel(portfolio.DefaultProfile())
 	updated, _ := model.Update(tea.WindowSizeMsg{Width: 100, Height: 40})

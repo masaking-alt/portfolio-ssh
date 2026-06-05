@@ -242,6 +242,13 @@ func (m Model) isScrollable() bool {
 }
 
 func (m Model) viewHome() string {
+	if m.homeColumnsFit() {
+		return m.viewHomeColumns()
+	}
+	return m.viewHomeStacked()
+}
+
+func (m Model) viewHomeStacked() string {
 	var builder strings.Builder
 	builder.WriteString(m.homeHeader())
 	builder.WriteString("\n")
@@ -250,17 +257,49 @@ func (m Model) viewHome() string {
 	builder.WriteString(bodyStyle.Render(strings.Join(m.profile.HeroLines, "\n")))
 	builder.WriteString("\n\n")
 
-	for i, item := range homeMenu {
-		line := fmt.Sprintf("[%s] %-7s %s", item.key, item.label, mutedStyle.Render(item.description))
-		if i == m.homeCursor {
-			line = selectedStyle.Render(line)
-		}
-		builder.WriteString(line)
-		builder.WriteString("\n")
-	}
-
+	builder.WriteString(m.homeMenu())
+	builder.WriteString("\n")
 	builder.WriteString("\n")
 	builder.WriteString(m.footer())
+	return builder.String()
+}
+
+func (m Model) viewHomeColumns() string {
+	availableWidth := maxInt(0, m.width-4)
+	faceWidth := maxLineWidth(asciiMyFace)
+	rightWidth := availableWidth - faceWidth - 4
+
+	face := asciiFaceStyle.Render(strings.Join(asciiMyFace, "\n"))
+	right := lipgloss.NewStyle().
+		Width(rightWidth).
+		MarginLeft(4).
+		MarginTop(2).
+		Render(m.homeRightColumn(rightWidth))
+
+	layout := lipgloss.JoinHorizontal(lipgloss.Top, face, right)
+	return strings.Join([]string{layout, "", m.footer()}, "\n")
+}
+
+func (m Model) homeColumnsFit() bool {
+	availableWidth := maxInt(0, m.width-4)
+	availableHeight := maxInt(0, m.height-2)
+	neededWidth := maxLineWidth(asciiMyFace) + 4 + maxLineWidth(asciiMyName)
+	neededHeight := len(asciiMyFace) + 2
+
+	return availableWidth >= neededWidth && availableHeight >= neededHeight
+}
+
+func (m Model) homeRightColumn(width int) string {
+	var builder strings.Builder
+	builder.WriteString(asciiNameStyle.Render(strings.Join(asciiMyName, "\n")))
+	builder.WriteString("\n\n")
+	builder.WriteString(subtitleStyle.Render(m.profile.Title))
+	builder.WriteString("\n\n")
+	builder.WriteString(bodyStyle.Render(strings.Join(m.profile.HeroLines, "\n")))
+	builder.WriteString("\n\n")
+	builder.WriteString(mutedStyle.Width(width).Render(m.profile.AboutLead))
+	builder.WriteString("\n\n")
+	builder.WriteString(m.homeMenu())
 	return builder.String()
 }
 
@@ -283,6 +322,19 @@ func (m Model) homeHeader() string {
 	}
 
 	return strings.Join(parts, "\n")
+}
+
+func (m Model) homeMenu() string {
+	var builder strings.Builder
+	for i, item := range homeMenu {
+		line := fmt.Sprintf("[%s] %-7s %s", item.key, item.label, mutedStyle.Render(item.description))
+		if i == m.homeCursor {
+			line = selectedStyle.Render(line)
+		}
+		builder.WriteString(line)
+		builder.WriteString("\n")
+	}
+	return strings.TrimRight(builder.String(), "\n")
 }
 
 func (m Model) viewWorks() string {
@@ -506,7 +558,7 @@ func asciiFits(lines []string, width int, height int) bool {
 func maxLineWidth(lines []string) int {
 	width := 0
 	for _, line := range lines {
-		width = maxInt(width, len(line))
+		width = maxInt(width, lipgloss.Width(line))
 	}
 	return width
 }
