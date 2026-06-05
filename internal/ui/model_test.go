@@ -11,13 +11,24 @@ import (
 
 func TestViewContainsHomeNavigation(t *testing.T) {
 	model := NewModel(portfolio.DefaultProfile())
-	updated, _ := model.Update(tea.WindowSizeMsg{Width: 100, Height: 40})
+	updated, _ := model.Update(tea.WindowSizeMsg{Width: 40, Height: 24})
 	view := updated.(Model).View()
 
 	for _, want := range []string{"MASAKING PORTFOLIO", "Works", "About", "Contact"} {
 		if !strings.Contains(view, want) {
 			t.Fatalf("表示に %q が含まれていません", want)
 		}
+	}
+}
+
+func TestHomeHeaderUsesAsciiArtWhenItFits(t *testing.T) {
+	model := NewModel(portfolio.DefaultProfile())
+	model.width = maxLineWidth(asciiMyName) + 4
+	model.height = len(asciiMyName) + 13
+
+	view := model.View()
+	if !strings.Contains(view, strings.TrimSpace(asciiMyName[0])) {
+		t.Fatal("十分な表示領域がある場合に名前のASCIIアートが表示されていません")
 	}
 }
 

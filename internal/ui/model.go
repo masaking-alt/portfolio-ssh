@@ -58,6 +58,12 @@ var (
 			Bold(true).
 			Foreground(lipgloss.Color("#9FE7D7"))
 
+	asciiNameStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#9FE7D7"))
+
+	asciiFaceStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#4FB3A5"))
+
 	subtitleStyle = lipgloss.NewStyle().
 			Foreground(lipgloss.Color("#C6D8D3"))
 
@@ -237,7 +243,7 @@ func (m Model) isScrollable() bool {
 
 func (m Model) viewHome() string {
 	var builder strings.Builder
-	builder.WriteString(titleStyle.Render("MASAKING PORTFOLIO"))
+	builder.WriteString(m.homeHeader())
 	builder.WriteString("\n")
 	builder.WriteString(subtitleStyle.Render(m.profile.Title))
 	builder.WriteString("\n\n")
@@ -256,6 +262,27 @@ func (m Model) viewHome() string {
 	builder.WriteString("\n")
 	builder.WriteString(m.footer())
 	return builder.String()
+}
+
+func (m Model) homeHeader() string {
+	availableWidth := maxInt(0, m.width-4)
+	availableHeight := maxInt(0, m.height-2)
+	headerReservedHeight := 11
+	parts := []string{}
+
+	if asciiFits(asciiMyName, availableWidth, availableHeight-headerReservedHeight) {
+		parts = append(parts, asciiNameStyle.Render(strings.Join(asciiMyName, "\n")))
+		availableHeight -= len(asciiMyName) + 1
+	} else {
+		parts = append(parts, titleStyle.Render("MASAKING PORTFOLIO"))
+		availableHeight -= 2
+	}
+
+	if asciiFits(asciiMyFace, availableWidth, availableHeight-headerReservedHeight) {
+		parts = append(parts, asciiFaceStyle.Render(strings.Join(asciiMyFace, "\n")))
+	}
+
+	return strings.Join(parts, "\n")
 }
 
 func (m Model) viewWorks() string {
@@ -467,6 +494,21 @@ func wrap(value string, width int) string {
 		return bodyStyle.Render(value)
 	}
 	return bodyStyle.Width(width).Render(value)
+}
+
+func asciiFits(lines []string, width int, height int) bool {
+	if len(lines) == 0 {
+		return false
+	}
+	return width >= maxLineWidth(lines) && height >= len(lines)
+}
+
+func maxLineWidth(lines []string) int {
+	width := 0
+	for _, line := range lines {
+		width = maxInt(width, len(line))
+	}
+	return width
 }
 
 func minInt(a int, b int) int {
