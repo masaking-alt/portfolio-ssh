@@ -31,7 +31,7 @@ func main() {
 
 	server, err := wish.NewServer(
 		wish.WithAddress(net.JoinHostPort(cfg.host, cfg.port)),
-		wish.WithHostKeyPath(cfg.hostKeyPath),
+		cfg.hostKeyOption(),
 		wish.WithMiddleware(
 			wishtea.Middleware(func(session ssh.Session) (tea.Model, []tea.ProgramOption) {
 				return ui.NewModel(portfolio.DefaultProfile()), []tea.ProgramOption{
@@ -64,6 +64,7 @@ type config struct {
 	host        string
 	port        string
 	hostKeyPath string
+	hostKeyPEM  string
 }
 
 func configFromEnv() config {
@@ -71,7 +72,15 @@ func configFromEnv() config {
 		host:        envOrDefault("HOST", "0.0.0.0"),
 		port:        envOrDefault("PORT", "2222"),
 		hostKeyPath: envOrDefault("HOST_KEY_PATH", ".ssh/ssh_host_ed25519_key"),
+		hostKeyPEM:  os.Getenv("SSH_HOST_KEY"),
 	}
+}
+
+func (c config) hostKeyOption() ssh.Option {
+	if c.hostKeyPEM != "" {
+		return wish.WithHostKeyPEM([]byte(c.hostKeyPEM))
+	}
+	return wish.WithHostKeyPath(c.hostKeyPath)
 }
 
 func envOrDefault(key string, fallback string) string {
