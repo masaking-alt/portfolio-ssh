@@ -1,0 +1,8 @@
+.git
+.cache
+.ssh
+server
+tmp
+dist
+bin
+*.log

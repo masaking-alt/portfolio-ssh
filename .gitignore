@@ -1,0 +1,7 @@
+.cache/
+.ssh/
+/server
+bin/
+dist/
+tmp/
+*.log
