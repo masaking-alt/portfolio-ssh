@@ -422,9 +422,8 @@ func (m Model) scrollableContent(width int) string {
 func (m Model) workDetailContent(width int) string {
 	work := m.selectedWork()
 	lines := []string{
-		bodyStyle.Render("種別: " + work.Category),
+		bodyStyle.Render("カテゴリ: " + work.Category),
 		bodyStyle.Render("URL: " + work.ExternalURL),
-		bodyStyle.Render("画像: " + work.ImagePath),
 		"",
 		sectionStyle.Render("説明"),
 		wrap(work.Description, width),
