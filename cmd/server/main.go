@@ -12,17 +12,21 @@ import (
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/ssh"
 	"github.com/charmbracelet/wish"
 	"github.com/charmbracelet/wish/activeterm"
 	wishtea "github.com/charmbracelet/wish/bubbletea"
 	"github.com/charmbracelet/wish/logging"
+	"github.com/muesli/termenv"
 
 	"github.com/masaking-alt/portfolio-ssh/internal/portfolio"
 	"github.com/masaking-alt/portfolio-ssh/internal/ui"
 )
 
 func main() {
+	configureTerminalRenderer()
+
 	cfg := configFromEnv()
 
 	server, err := wish.NewServer(
@@ -50,6 +54,10 @@ func main() {
 	}()
 
 	waitForShutdown(server)
+}
+
+func configureTerminalRenderer() {
+	lipgloss.SetColorProfile(termenv.TrueColor)
 }
 
 type config struct {
