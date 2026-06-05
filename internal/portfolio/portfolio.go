@@ -51,15 +51,13 @@ func DefaultProfile() Profile {
 			"Vite",
 			"React Router",
 			"ESLint",
-			"Node.js",
-			"npm",
 		},
 		ContactLead: "Let's create something together.",
 		Email:       "banbenjianggui@gmail.com",
 		Socials: []Social{
-			{Name: "Instagram", URL: "https://www.instagram.com/masa.ki8904?igsh=b3hqMjd6aHdnazJ5"},
-			{Name: "X (Twitter)", URL: "https://x.com/masaking_alt"},
-			{Name: "BeReal", URL: "https://bere.al/masaki9876"},
+			{Name: "Instagram", URL: "masa.ki8904"},
+			{Name: "X (Twitter)", URL: "masaking_alt"},
+			{Name: "GitHub", URL: "masaking-alt"},
 		},
 		Works: []Work{
 			{
@@ -134,7 +132,7 @@ func DefaultProfile() Profile {
 				Title:       "Moodle Enhancer for Kochi University",
 				Category:    "Chrome拡張",
 				ImagePath:   "/moodle-enhancer.jpeg",
-				ExternalURL: "https://chromewebstore.google.com/detail/moodle-dashboard-tweaks/jmnmogonkjhmhgcncebieodddgbaamfg",
+				ExternalURL: "https://chromewebstore.google.com/detail/moodle-enhancer-for-kochi/jmnmogonkjhmhgcncebieodddgbaamfg",
 				Technologies: []string{
 					"Chrome Extension (Manifest V3)",
 					"JavaScript",
@@ -150,12 +148,11 @@ func DefaultProfile() Profile {
 				ImagePath:   "/soueiken-hp.jpeg",
 				ExternalURL: "https://soueiken-hp.pages.dev/",
 				Technologies: []string{
+					"Next.js",
 					"React",
-					"Fetch API",
 					"CSS",
-					"自作 Markdown レンダラー",
 					"Cloudflare Pages",
-					"Firestore",
+					"Cloudflare workers & D1",
 					"チーム開発",
 				},
 				Description: "高知大学・総合映像研究会の公式サイトです。サークルの雰囲気を一気に伝えるヒーローセクションやサイドバー、活動予定・BBS・コンタクトなどの複数セクションを整備し、Markdown で管理する活動レポートをトップの一覧と詳細ページに分離して運用できる構成にしています。",

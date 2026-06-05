@@ -50,6 +50,11 @@ var homeMenu = []menuItem{
 	{key: "q", label: "Quit", description: "接続終了", target: screenHome},
 }
 
+const (
+	maxWorkRowWidth = 96
+	workCategoryGap = 2
+)
+
 var (
 	appStyle = lipgloss.NewStyle().
 			Padding(1, 2)
@@ -341,6 +346,7 @@ func (m Model) viewWorks() string {
 	var builder strings.Builder
 	total := len(m.profile.Works)
 	start, end := visibleWorkRange(m.workCursor, total, m.height)
+	rowWidth := workListRowWidth(m.width)
 
 	builder.WriteString(sectionStyle.Render("WORKS"))
 	builder.WriteString("\n")
@@ -349,7 +355,7 @@ func (m Model) viewWorks() string {
 
 	for i := start; i < end; i++ {
 		work := m.profile.Works[i]
-		titleLine := fmt.Sprintf("%2d. %-42s %s", work.ID, work.Title, work.Category)
+		titleLine := workTitleLine(work, rowWidth)
 		if i == m.workCursor {
 			titleLine = selectedStyle.Render(titleLine)
 		} else {
@@ -531,6 +537,59 @@ func firstStrings(values []string, count int) []string {
 		return values
 	}
 	return values[:count]
+}
+
+func workListRowWidth(windowWidth int) int {
+	return minInt(maxWorkRowWidth, maxInt(0, windowWidth-4))
+}
+
+func workTitleLine(work portfolio.Work, width int) string {
+	left := fmt.Sprintf("%2d. %s", work.ID, work.Title)
+	category := work.Category
+	if width <= 0 {
+		return left + " " + category
+	}
+
+	categoryWidth := lipgloss.Width(category)
+	leftWidth := width - categoryWidth - workCategoryGap
+	if leftWidth <= 0 {
+		return fitDisplayWidth(left, width)
+	}
+
+	left = fitDisplayWidth(left, leftWidth)
+	spaces := width - lipgloss.Width(left) - categoryWidth
+	if spaces < workCategoryGap {
+		spaces = workCategoryGap
+	}
+
+	return left + strings.Repeat(" ", spaces) + category
+}
+
+func fitDisplayWidth(value string, width int) string {
+	if width <= 0 {
+		return ""
+	}
+	if lipgloss.Width(value) <= width {
+		return value
+	}
+	if width <= 3 {
+		return trimDisplayWidth(value, width)
+	}
+	return trimDisplayWidth(value, width-3) + "..."
+}
+
+func trimDisplayWidth(value string, width int) string {
+	var builder strings.Builder
+	currentWidth := 0
+	for _, r := range value {
+		runeWidth := lipgloss.Width(string(r))
+		if currentWidth+runeWidth > width {
+			break
+		}
+		builder.WriteRune(r)
+		currentWidth += runeWidth
+	}
+	return builder.String()
 }
 
 func shorten(value string, limit int) string {

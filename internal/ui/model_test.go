@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 
 	"github.com/masaking-alt/portfolio-ssh/internal/portfolio"
 )
@@ -45,6 +46,19 @@ func TestHomeUsesTwoColumnLayoutWhenItFits(t *testing.T) {
 	}
 }
 
+func TestWorkTitleLineAlignsCategoryRightEdge(t *testing.T) {
+	rowWidth := 72
+	for _, work := range portfolio.DefaultProfile().Works {
+		line := workTitleLine(work, rowWidth)
+		if got := lipgloss.Width(line); got != rowWidth {
+			t.Fatalf("%s の表示幅 = %d, want %d", work.Title, got, rowWidth)
+		}
+		if got := categoryRightEdge(line, work.Category); got != rowWidth {
+			t.Fatalf("%s のカテゴリ右端 = %d, want %d", work.Title, got, rowWidth)
+		}
+	}
+}
+
 func TestEnterFromWorksShowsDetail(t *testing.T) {
 	model := NewModel(portfolio.DefaultProfile())
 	updated, _ := model.Update(tea.WindowSizeMsg{Width: 100, Height: 40})
@@ -65,4 +79,12 @@ func TestEnterFromWorksShowsDetail(t *testing.T) {
 	if !strings.Contains(model.View(), "Marple") {
 		t.Fatal("詳細画面に作品名が含まれていません")
 	}
+}
+
+func categoryRightEdge(line string, category string) int {
+	index := strings.LastIndex(line, category)
+	if index < 0 {
+		return -1
+	}
+	return lipgloss.Width(line[:index]) + lipgloss.Width(category)
 }
